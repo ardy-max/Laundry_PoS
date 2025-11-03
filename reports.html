@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry POS - Reports Penjualan</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #1193d4;
+            --sidebar-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --light-bg: #f1f5f9;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #ffffff 0%, var(--sidebar-bg) 100%);
+            border-right: 1px solid var(--border-color);
+            min-height: 100vh;
+            padding: 1rem 0;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .sidebar .nav-link {
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 0.25rem 0;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(17, 147, 212, 0.2);
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #e2e8f0;
+            color: var(--text-primary);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .report-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .report-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .report-card .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .report-card .form-control {
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            height: auto;
+            background: #fafbfc;
+            transition: border-color 0.2s ease;
+        }
+
+        .report-card .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(17, 147, 212, 0.1);
+            background: white;
+        }
+
+        .report-card .btn {
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .report-card .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+        }
+
+        .report-card .btn-primary:hover {
+            background-color: #0e7bb8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(17, 147, 212, 0.3);
+        }
+
+        .report-table {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        .report-table table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .report-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .report-table td {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .transaction-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            text-align: right;
+        }
+
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                width: 200px;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .report-card,
+            .report-table {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column">
+        <div class="d-flex align-items-center justify-content-center mb-4 pb-3 border-bottom">
+            <i class="bi bi-scissors fs-3 text-primary me-2"></i>
+            <h5 class="mb-0 fw-bold text-primary">Laundry POS</h5>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="index.html">
+                <i class="bi bi-house-door me-2"></i> Dashboard
+            </a>
+            <a class="nav-link" href="Orders.html">
+                <i class="bi bi-cart me-2"></i> Orders
+            </a>
+            <a class="nav-link" href="Payment.html">
+                <i class="bi bi-cash me-2"></i> Payments
+            </a>
+            <a class="nav-link active" href="reports.html">
+                <i class="bi bi-file-earmark-bar-graph me-2"></i> Reports
+            </a>
+            <a class="nav-link" href="Setting.html">
+                <i class="bi bi-gear me-2"></i> Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="report-card">
+            <h2>Reports Penjualan</h2>
+
+            <!-- Filter Section -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="startDate" value="2025-10-01">
+                </div>
+                <div class="col-md-6">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="endDate" value="2025-10-27">
+                </div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary me-2">Filter</button>
+                <button type="button" class="btn btn-outline-secondary">Export</button>
+            </div>
+        </div>
+
+        <!-- Sales Summary Table -->
+        <div class="report-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2025-10-25</td>
+                        <td>#ORD1234</td>
+                        <td>John Doe</td>
+                        <td>$45.00</td>
+                        <td>Completed</td>
+                    </tr>
+                    <tr>
+                        <td>2025-10-26</td>
+                        <td>#ORD1235</td>
+                        <td>Jane Smith</td>
+                        <td>$32.50</td>
+                        <td>Completed</td>
+                    </tr>
+                    <tr>
+                        <td>2025-10-27</td>
+                        <td>#ORD1236</td>
+                        <td>Mike Johnson</td>
+                        <td>$28.00</td>
+                        <td>In Progress</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Transaction Time -->
+        <div class="transaction-time" id="transactionTime">
+            Report Generated: Loading...
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // JavaScript for Time and Interactivity
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'btn btn-primary d-lg-none position-absolute top-0 end-0 m-2';
+            toggleBtn.innerHTML = '<i class="bi bi-list"></i>';
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+            });
+            document.body.appendChild(toggleBtn);
+
+            // Mobile sidebar close on click outside
+            document.addEventListener('click', (e) => {
+                if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target) && window.innerWidth < 992) {
+                    sidebar.classList.remove('show');
+                }
+            });
+
+            // Transaction Time
+            const transactionTime = document.getElementById('transactionTime');
+            function updateTransactionTime() {
+                const now = new Date();
+                const options = {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'Asia/Jakarta',
+                    hour12: false
+                };
+                transactionTime.textContent = `Report Generated: ${now.toLocaleString('id-ID', options).replace('WIB', '')} WIB`;
+            }
+            updateTransactionTime(); // Set initial time
+            setInterval(updateTransactionTime, 60000); // Update every minute
+
+            // Filter and Export Buttons (Placeholder Logic)
+            const filterBtn = document.querySelector('.btn-primary');
+            const exportBtn = document.querySelector('.btn-outline-secondary');
+            filterBtn.addEventListener('click', () => {
+                alert('Filtering data based on selected dates...'); // Replace with actual filter logic
+            });
+            exportBtn.addEventListener('click', () => {
+                alert('Exporting report...'); // Replace with export logic (e.g., CSV/PDF)
+            });
+        });
+    </script>
+</body>
+</html>
