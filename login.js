@@ -41,7 +41,7 @@ loginForm.addEventListener('submit', function(e) {
             
             // Redirect to dashboard after 1.5 seconds
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = 'index.html';
             }, 1500);
         } else {
             // Failed
