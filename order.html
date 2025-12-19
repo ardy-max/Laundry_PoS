@@ -44,55 +44,56 @@
     <div class="main-content">
         <div class="order-card">
             <h2>New Order</h2>
+<form method="POST" action="php/order.php">
+    <!-- Customer Details -->
+    <div class="mb-4">
+        <h3 class="section-title">Customer Details</h3>
+        <div class="mb-3">
+            <label for="customerSelect" class="form-label">Select Cashier</label>
+            <select class="form-control" id="customerSelect" name="cashier_id" required>
+                <option value="">Select a Cashier</option>
+                <option value="1">Cicitcuit</option>
+                <option value="2">Mamat</option>
+                <option value="3">Ucup</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="customerName" class="form-label">Customer Name</label>
+            <input type="text" class="form-control" id="customerName" name="customer_name" placeholder="Enter customer name" required>
+        </div>
+        <div class="mb-3">
+            <label for="phoneNumber" class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="phoneNumber" name="phone_number" placeholder="Enter phone number" required>
+        </div>
+    </div>
 
-            <!-- Customer Details -->
-            <div class="mb-4">
-                <h3 class="section-title">Customer Details</h3>
-                <div class="mb-3">
-                    <label for="customerSelect" class="form-label">Select Cashier</label>
-                    <select class="form-control" id="customerSelect">
-                        <option value="">Select a Cashier</option>
-                        <option value="1">Cicitcuit</option>
-                        <option value="2">Mamat</option>
-                        <option value="3">Ucup</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="customerName" class="form-label">Customer Name</label>
-                    <input type="text" class="form-control" id="customerName" placeholder="Enter customer name">
-                </div>
-                <div class="mb-3">
-                    <label for="phoneNumber" class="form-label">Phone Number</label>
-                    <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter phone number">
-                </div>
-            </div>
-
-            <!-- Order Details -->
-            <div>
-                <h3 class="section-title">Order Details</h3>
-                <div class="mb-3">
-                    <label for="serviceSelect" class="form-label">Select Service</label>
-                    <select class="form-control" id="serviceSelect">
-                        <option value="">Select a service</option>
-                        <option value="1">Wash & Fold</option>
-                        <option value="2">Dry Cleaning</option>
-                        <option value="3">Ironing</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="weightQuantity" class="form-label">Weight/Quantity</label>
-                    <input type="number" class="form-control" id="weightQuantity" placeholder="Enter weight or quantity" step="0.1">
-                </div>
-                <div class="mb-3">
-                    <label for="price" class="form-label">Price</label>
-                    <input type="number" class="form-control" id="price" placeholder="Enter price" step="500">
-                </div>
-                <div class="mb-3">
-                    <label for="estimatedCompletion" class="form-label">Estimated Completion</label>
-                    <input type="datetime-local" class="form-control" id="estimatedCompletion">
-                </div>
-                <button type="submit" class="btn btn-primary">Create Order</button>
-            </div>
+    <!-- Order Details -->
+    <div>
+        <h3 class="section-title">Order Details</h3>
+        <div class="mb-3">
+            <label for="serviceSelect" class="form-label">Select Service</label>
+            <select class="form-control" id="serviceSelect" name="service_id" required>
+                <option value="">Select a service</option>
+                <option value="1">Wash & Fold</option>
+                <option value="2">Dry Cleaning</option>
+                <option value="3">Ironing</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="weightQuantity" class="form-label">Weight/Quantity</label>
+            <input type="number" class="form-control" id="weightQuantity" name="weight_quantity" placeholder="Enter weight or quantity" step="0.1" required>
+        </div>
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="number" class="form-control" id="price" name="price" placeholder="Enter price" step="500" required>
+        </div>
+        <div class="mb-3">
+            <label for="estimatedCompletion" class="form-label">Estimated Completion</label>
+            <input type="datetime-local" class="form-control" id="estimatedCompletion" name="estimated_completion" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Order</button>
+    </div>
+</form>
         </div>
     </div>
 

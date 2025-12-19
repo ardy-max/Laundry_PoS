@@ -47,31 +47,31 @@ loginForm.addEventListener('submit', function(e) {
     // Data yang akan dikirim
     const data = `username=${username}&password=${password}&rememberMe=${rememberMe}`;
 
-xhr.onload = function() {
-    if (xhr.status === 200) {
-        try {
-            const response = JSON.parse(xhr.responseText);
-            console.log(response); // Debugging line untuk melihat response dari PHP
-            
-            if (response.success) {
-                showAlert('Login berhasil! Mengalihkan ke dashboard...', 'success');
-                if (rememberMe) {
-                    localStorage.setItem('rememberedUser', username);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                const response = JSON.parse(xhr.responseText);
+                console.log(response); // Debugging line untuk melihat response dari PHP
+                
+                if (response.success) {
+                    showAlert('Login berhasil! Mengalihkan ke dashboard...', 'success');
+                    if (rememberMe) {
+                        localStorage.setItem('rememberedUser', username);
+                    }
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html'; // Arahkan ke halaman dashboard
+                    }, 1500);
+                } else {
+                    showAlert(response.message, 'danger');
                 }
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
-            } else {
-                showAlert(response.message, 'danger');
+            } catch (e) {
+                console.error('Error parsing JSON:', e);
+                showAlert('Terjadi kesalahan, coba lagi!', 'danger');
             }
-        } catch (e) {
-            console.error('Error parsing JSON:', e);
+        } else {
             showAlert('Terjadi kesalahan, coba lagi!', 'danger');
         }
-    } else {
-        showAlert('Terjadi kesalahan, coba lagi!', 'danger');
-    }
-};
+    };
 
     xhr.send(data);
 });

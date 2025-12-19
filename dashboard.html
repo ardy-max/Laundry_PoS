@@ -99,14 +99,20 @@
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                 <h5 class="mb-2 mb-md-0 fw-semibold">Order Status</h5>
                 <div class="d-flex gap-2">
-                    <span class="badge bg-light text-dark px-3 py-2">All</span>
-                    <span class="badge bg-light text-dark px-3 py-2">In Progress</span>
-                    <span class="badge bg-light text-dark px-3 py-2">Completed</span>
+                    <!-- Filter by Status -->
+<div class="filter">
+    <label for="statusFilter">Filter by Status:</label>
+    <select id="statusFilter" class="form-control">
+        <option value="">All</option>
+        <option value="completed">Completed</option>
+        <option value="in progress">In Progress</option>
+    </select>
+</div>
                 </div>
             </div>
             
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover" id="ordersTable">
                     <thead class="table-light">
                         <tr>
                             <th>Order ID</th>
@@ -117,42 +123,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><strong>#ORD1234</strong></td>
-                            <td>Emily Carter</td>
-                            <td><span class="badge badge-in-progress px-3 py-2">In Progress</span></td>
-                            <td>2024-10-18</td>
-                            <td><strong>RP 46.000</strong></td>
-                        </tr>
-                        <tr>
-                            <td><strong>#ORD1235</strong></td>
-                            <td>David Lee</td>
-                            <td><span class="badge badge-completed px-3 py-2">Completed</span></td>
-                            <td>2024-10-17</td>
-                            <td><strong>RP 25.000</strong></td>
-                        </tr>
-                        <tr>
-                            <td><strong>#ORD1236</strong></td>
-                            <td>Sophia Clark</td>
-                            <td><span class="badge badge-in-progress px-3 py-2">In Progress</span></td>
-                            <td>2024-10-16</td>
-                            <td><strong>RP 35.000</strong></td>
-                        </tr>
-                        <tr>
-                            <td><strong>#ORD1237</strong></td>
-                            <td>Ella Walter</td>
-                            <td><span class="badge badge-completed px-3 py-2">Completed</span></td>
-                            <td>2024-10-15</td>
-                            <td><strong>RP 41.000</strong></td>
-                        </tr>
-                        <tr>
-                            <td><strong>#ORD1238</strong></td>
-                            <td>Olivia Hart</td>
-                            <td><span class="badge badge-completed px-3 py-2">Completed</span></td>
-                            <td>2024-10-14</td>
-                            <td><strong>RP 51.000</strong></td>
-                        </tr>
-                    </tbody>
+            
+                </tbody>
+
                 </table>
             </div>
         </div>
