@@ -12,7 +12,7 @@
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="Setting.css">
+    <link rel="stylesheet" href="css/Setting.css">
 </head>
 <body>
     <!-- Sidebar -->
@@ -21,20 +21,20 @@
             <i class="bi bi-basket fs-3 text-primary me-2"></i>
             <h5 class="mb-0 fw-bold text-primary">Boss Laundry</h5>
         </div>
-        <nav class="nav flex-column">
-            <a class="nav-link" href="../index.html">
+        <nav class="sidebar-nav flex-column">
+            <a class="nav-link" href="dashboard.html">
                 <i class="bi bi-house-door me-2"></i> Dashboard
             </a>
-            <a class="nav-link" href="../order_page/Orders.html">
+            <a class="nav-link" href="order.html">
                 <i class="bi bi-cart me-2"></i> Orders
             </a>
-            <a class="nav-link" href="../payment_page/Payment.html">
+            <a class="nav-link" href="payment.html">
                 <i class="bi bi-cash me-2"></i> Payments
             </a>
-            <a class="nav-link" href="../report_page/reports.html">
+            <a class="nav-link " href="reports.html">
                 <i class="bi bi-file-earmark-bar-graph me-2"></i> Reports
             </a>
-            <a class="nav-link active" href="../setting_page/Setting.html">
+            <a class="nav-link active" href="setting.html">
                 <i class="bi bi-gear me-2"></i> Settings
             </a>
         </nav>
@@ -64,15 +64,15 @@
             <h3>Service Price</h3>
             <div class="mb-3">
                 <label for="washFoldPrice" class="form-label">Wash & Fold (per kg)</label>
-                <input type="number" class="form-control" id="washFoldPrice" value="5.00" step="0.01" min="0">
+                <input type="number" class="form-control" id="washFoldPrice" value="5.000" step="0.01" min="0">
             </div>
             <div class="mb-3">
                 <label for="dryCleaningPrice" class="form-label">Dry Cleaning (per item)</label>
-                <input type="number" class="form-control" id="dryCleaningPrice" value="10.00" step="0.01" min="0">
+                <input type="number" class="form-control" id="dryCleaningPrice" value="10.000" step="0.01" min="0">
             </div>
             <div class="mb-3">
                 <label for="ironingPrice" class="form-label">Ironing (per item)</label>
-                <input type="number" class="form-control" id="ironingPrice" value="3.00" step="0.01" min="0">
+                <input type="number" class="form-control" id="ironingPrice" value="3.000" step="0.01" min="0">
             </div>
         </div>
 
@@ -107,6 +107,6 @@
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="setting.js"></script>
+    <script src="js/setting.js"></script>
 </body>
 </html>
