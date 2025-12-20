@@ -70,3 +70,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const logoutButton = document.getElementById('logoutButton');
+
+    // Fungsi logout jika tombol logout diklik
+    logoutButton.addEventListener('click', function() {
+        // Arahkan pengguna ke logout.php untuk menghapus session
+        window.location.href = 'php/logout.php';  // Mengarahkan ke logout.php untuk menghancurkan session
+    });
+});
