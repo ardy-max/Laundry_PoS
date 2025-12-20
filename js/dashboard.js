@@ -20,18 +20,21 @@
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Fungsi untuk mengambil dan menampilkan data order
-    function loadOrders() {
-        fetch('php/dashboard.php')
+    // Fungsi untuk memuat dan menampilkan statistik dan data pesanan
+    function loadStats() {
+        fetch('/Laundry_Pos/php/dashboard.php')  // Mengambil data dari PHP
             .then(response => response.json())
-            .then(orders => {
+            .then(data => {
+                const stats = data.statistics;
+                // Menampilkan data statistik pada dashboard
+                document.querySelector('.stat-card .total-sales').textContent = 'RP ' + stats.total_sales.toLocaleString();
+                document.querySelector('.stat-card .monthly-sales').textContent = 'RP ' + stats.monthly_sales.toLocaleString();
+                document.querySelector('.stat-card .orders-in-progress').textContent = stats.orders_in_progress;
+                document.querySelector('.stat-card .total-orders').textContent = stats.total_orders;
+                
+                // Menampilkan data order pada tabel
                 const ordersTableBody = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
-
-                // Kosongkan tabel sebelum memasukkan data baru
-                ordersTableBody.innerHTML = '';
-
-                // Menambahkan data ke dalam tabel
-                orders.forEach(order => {
+                data.orders.forEach(order => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td><strong>#ORD${order.order_id}</strong></td>
@@ -48,8 +51,8 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    // Panggil fungsi untuk memuat order ketika halaman dimuat
-    loadOrders();
+    // Panggil fungsi untuk memuat statistik dan data pesanan saat halaman dimuat
+    loadStats();
 
     // Fitur filter berdasarkan status
     const statusFilter = document.getElementById('statusFilter');
@@ -67,4 +70,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-
