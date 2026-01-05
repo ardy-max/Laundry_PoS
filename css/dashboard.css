@@ -103,15 +103,21 @@
             border-color: #f1f5f9;
         }
 
-        .badge-in-progress {
-            background: #fef3c7;
-            color: #d97706;
-        }
+        .badge-pending {
+  background: #ffc107;   /* kuning */
+  color: #212529;
+}
 
-        .badge-completed {
-            background: #d1fae5;
-            color: #059669;
-        }
+.badge-in-progress {
+  background: #0d6efd;   /* biru */
+  color: #fff;
+}
+
+.badge-completed {
+  background: #198754;   /* hijau */
+  color: #fff;
+}
+
 
         .btn-login {
             background: var(--primary-color);

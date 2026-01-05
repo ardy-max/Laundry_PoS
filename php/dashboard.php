@@ -1,59 +1,80 @@
 <?php
 session_start();
-include ('../includes/db.php');
-
-// Pastikan pengguna sudah login
+// Cek apakah session 'user_id' ada
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.html');  // Jika belum login, alihkan ke halaman login
+    // Jika tidak ada session, redirect ke halaman login
+    header("Location: /Laundry_Pos/login.html");
     exit;
 }
 
-// Ambil data order dari database
-$query = "SELECT * FROM orders WHERE user_id = ?";
+include('../includes/db.php');
+
+
+
+header('Content-Type: application/json');
+
+
+
+$userId = (int) $_SESSION['user_id'];
+
+// Ambil data order + nama customer (JOIN)
+$query = "
+    SELECT 
+        o.order_id,
+        c.name AS customer_name,
+        o.status,
+        o.created_at AS order_date,
+        o.total
+    FROM orders o
+    JOIN customers c ON c.customer_id = o.customer_id
+    WHERE o.user_id = ?
+    ORDER BY o.created_at DESC
+    LIMIT 50
+";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->bind_param("i", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Menyimpan data order dalam array
-$orders = array();
-while ($order = $result->fetch_assoc()) {
-    $orders[] = $order;  // Menambahkan order ke dalam array
+$orders = [];
+while ($row = $result->fetch_assoc()) {
+    // Normalisasi output agar frontend stabil
+    $orders[] = [
+        'order_id'       => (int)$row['order_id'],
+        'customer_name'  => $row['customer_name'],
+        'status'         => $row['status'],                 // pending | progress | complete
+        'order_date'     => $row['order_date'],             // datetime
+        'total'          => (float)$row['total'],            // numeric
+    ];
 }
 
-// Query untuk mengambil statistik
-$query_stats = "SELECT 
-                    SUM(price) AS total_sales,
-                    COUNT(*) AS total_orders,
-                    COUNT(CASE WHEN status = 'in progress' THEN 1 END) AS orders_in_progress,
-                    SUM(CASE WHEN MONTH(order_date) = MONTH(CURRENT_DATE()) THEN price ELSE 0 END) AS monthly_sales
-                FROM orders
-                WHERE user_id = ?";
+// Statistik dashboard (gunakan created_at + total)
+$query_stats = "
+    SELECT
+        COALESCE(SUM(CASE WHEN DATE(created_at) = CURDATE() THEN total ELSE 0 END), 0) AS total_sales,
+        COALESCE(SUM(CASE WHEN YEAR(created_at)=YEAR(CURDATE()) AND MONTH(created_at)=MONTH(CURDATE()) THEN total ELSE 0 END), 0) AS monthly_sales,
+        COUNT(*) AS total_orders,
+        SUM(CASE WHEN status = 'progress' THEN 1 ELSE 0 END) AS orders_in_progress
+    FROM orders
+    WHERE user_id = ?
+";
 $stmt_stats = $conn->prepare($query_stats);
-$stmt_stats->bind_param("i", $_SESSION['user_id']);
+$stmt_stats->bind_param("i", $userId);
 $stmt_stats->execute();
-$result_stats = $stmt_stats->get_result();
-$stats = $result_stats->fetch_assoc();
+$stats = $stmt_stats->get_result()->fetch_assoc();
 
-// Menyusun data statistik untuk dikirim ke frontend
-$statistics = array(
-    'total_sales' => $stats['total_sales'],
-    'monthly_sales' => $stats['monthly_sales'],
-    'orders_in_progress' => $stats['orders_in_progress'],
-    'total_orders' => $stats['total_orders']
-);
+$statistics = [
+    'total_sales'        => (float)$stats['total_sales'],
+    'monthly_sales'      => (float)$stats['monthly_sales'],
+    'orders_in_progress' => (int)$stats['orders_in_progress'],
+    'total_orders'       => (int)$stats['total_orders'],
+];
 
-// Menutup statement dan koneksi
 $stmt->close();
 $stmt_stats->close();
 $conn->close();
 
-// Mengirim data pesanan dan statistik sebagai JSON
-$response = array(
+echo json_encode([
     'orders' => $orders,
     'statistics' => $statistics
-);
-
-echo json_encode($response);
-?>
-
+]);

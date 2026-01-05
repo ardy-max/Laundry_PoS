@@ -1,12 +1,9 @@
-
-
 // Tombol untuk toggle password
 const togglePassword = document.getElementById('togglePassword');
 const passwordField = document.getElementById('password');
 
 // Event listener untuk toggle password visibility
 togglePassword.addEventListener('click', function (e) {
-    // Cek jenis input (password atau text)
     const type = passwordField.type === 'password' ? 'text' : 'password';
     passwordField.type = type;
 
@@ -15,14 +12,10 @@ togglePassword.addEventListener('click', function (e) {
     this.querySelector('i').classList.toggle('fa-eye-slash');
 });
 
-
-
-
-
 const loginForm = document.getElementById('loginForm');
 
-loginForm.addEventListener('submit', function(e) {
-    e.preventDefault();
+loginForm.addEventListener('submit', function (e) {
+    e.preventDefault(); // Mencegah form untuk submit default
     
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
@@ -34,33 +27,37 @@ loginForm.addEventListener('submit', function(e) {
         return;
     }
 
-    // Add loading state
     const submitBtn = loginForm.querySelector('button[type="submit"]');
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
 
-    // Kirim data ke server via AJAX
     const xhr = new XMLHttpRequest();
     xhr.open('POST', 'php/login.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-    // Data yang akan dikirim
     const data = `username=${username}&password=${password}&rememberMe=${rememberMe}`;
 
-    xhr.onload = function() {
+    xhr.onload = function () {
         if (xhr.status === 200) {
             try {
                 const response = JSON.parse(xhr.responseText);
-                console.log(response); // Debugging line untuk melihat response dari PHP
-                
+
                 if (response.success) {
-                    showAlert('Login berhasil! Mengalihkan ke dashboard...', 'success');
+                    showAlert('Login berhasil! Mengalihkan ke halaman...', 'success');
                     if (rememberMe) {
                         localStorage.setItem('rememberedUser', username);
                     }
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html'; // Arahkan ke halaman dashboard
-                    }, 1500);
+
+                    // Redirect berdasarkan role yang diterima dari server
+                    if (response.role === 'admin') {
+                        setTimeout(() => {
+                            window.location.href = 'admin/admin.html'; // Arahkan ke halaman admin
+                        }, 1500);
+                    } else {
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html'; // Arahkan ke halaman user
+                        }, 1500);
+                    }
                 } else {
                     showAlert(response.message, 'danger');
                 }

@@ -20,64 +20,71 @@
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Fungsi untuk memuat dan menampilkan statistik dan data pesanan
-    function loadStats() {
-        fetch('/Laundry_Pos/php/dashboard.php')  // Mengambil data dari PHP
-            .then(response => response.json())
-            .then(data => {
-                const stats = data.statistics;
-                // Menampilkan data statistik pada dashboard
-                document.querySelector('.stat-card .total-sales').textContent = 'RP ' + stats.total_sales.toLocaleString();
-                document.querySelector('.stat-card .monthly-sales').textContent = 'RP ' + stats.monthly_sales.toLocaleString();
-                document.querySelector('.stat-card .orders-in-progress').textContent = stats.orders_in_progress;
-                document.querySelector('.stat-card .total-orders').textContent = stats.total_orders;
-                
-                // Menampilkan data order pada tabel
-                const ordersTableBody = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
-                data.orders.forEach(order => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><strong>#ORD${order.order_id}</strong></td>
-                        <td>${order.customer_name}</td>
-                        <td><span class="badge badge-${order.status === 'completed' ? 'completed' : 'in-progress'} px-3 py-2">${order.status}</span></td>
-                        <td>${order.order_date}</td>
-                        <td><strong>RP ${parseFloat(order.price).toLocaleString()}</strong></td>
-                    `;
-                    ordersTableBody.appendChild(row);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-    }
 
-    // Panggil fungsi untuk memuat statistik dan data pesanan saat halaman dimuat
-    loadStats();
+  function formatRupiah(num) {
+    return 'RP ' + Number(num || 0).toLocaleString('id-ID');
+  }
 
-    // Fitur filter berdasarkan status
-    const statusFilter = document.getElementById('statusFilter');
-    statusFilter.addEventListener('change', function () {
-        const filterValue = statusFilter.value.toLowerCase();
-        const rows = document.querySelectorAll('#ordersTable tbody tr');
+  function statusLabel(status) {
+    if (status === 'complete') return 'completed';
+    if (status === 'progress') return 'in progress';
+    return 'pending';
+  }
 
-        rows.forEach(row => {
-            const statusCell = row.cells[2].textContent.toLowerCase(); // Kolom Status
-            if (filterValue === '' || statusCell.includes(filterValue)) {
-                row.style.display = ''; // Tampilkan baris
-            } else {
-                row.style.display = 'none'; // Sembunyikan baris
-            }
+  function badgeClass(status) {
+  if (status === 'complete') return 'badge-completed';
+  if (status === 'progress') return 'badge-in-progress';
+  return 'badge-pending';
+}
+
+
+  function loadStats() {
+    fetch('/Laundry_Pos/php/dashboard.php')
+      .then(res => res.json())
+      .then(data => {
+        const stats = data.statistics || {};
+
+        document.querySelector('.total-sales').textContent = formatRupiah(stats.total_sales);
+        document.querySelector('.monthly-sales').textContent = formatRupiah(stats.monthly_sales);
+        document.querySelector('.orders-in-progress').textContent = stats.orders_in_progress ?? 0;
+        document.querySelector('.total-orders').textContent = stats.total_orders ?? 0;
+
+        const tbody = document.querySelector('#ordersTable tbody');
+        tbody.innerHTML = ''; // penting: biar tidak dobel append
+
+        (data.orders || []).forEach(order => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><strong>#ORD${order.order_id}</strong></td>
+            <td>${order.customer_name ?? '-'}</td>
+            <td>
+  <span class="badge ${badgeClass(order.status)} px-3 py-2">
+    ${order.status}
+  </span>
+</td>
+
+            <td>${order.order_date ?? '-'}</td>
+            <td><strong>${formatRupiah(order.total)}</strong></td>
+          `;
+          tbody.appendChild(row);
         });
+      })
+      .catch(err => console.error('Error fetching data:', err));
+  }
+
+  loadStats();
+
+  // Filter status
+  const statusFilter = document.getElementById('statusFilter');
+  statusFilter.addEventListener('change', function () {
+    const filterValue = statusFilter.value.toLowerCase();
+    const rows = document.querySelectorAll('#ordersTable tbody tr');
+
+    rows.forEach(row => {
+      const statusCell = row.cells[2].textContent.toLowerCase();
+      row.style.display = (filterValue === '' || statusCell.includes(filterValue)) ? '' : 'none';
     });
+  });
+
 });
 
-
-document.addEventListener('DOMContentLoaded', function() {
-    const logoutButton = document.getElementById('logoutButton');
-
-    // Fungsi logout jika tombol logout diklik
-    logoutButton.addEventListener('click', function() {
-        // Arahkan pengguna ke logout.php untuk menghapus session
-        window.location.href = 'php/logout.php';  // Mengarahkan ke logout.php untuk menghancurkan session
-    });
-});

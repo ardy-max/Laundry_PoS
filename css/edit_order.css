@@ -1,0 +1,144 @@
+/* RESET DASAR */
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 30px;
+    background: #f4f6f9;
+    color: #333;
+}
+
+/* CARD UTAMA */
+.card {
+    max-width: 1000px;
+    margin: auto;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 24px 28px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.card h2 {
+    margin: 0 0 20px;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+/* FORM GRID */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* BARIS INPUT */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+/* BARIS 4 KOLOM (SERVICE) */
+.form-row-4 {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+/* LABEL */
+label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* INPUT & SELECT */
+input,
+select {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid #ccd1d9;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus,
+select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 2px rgba(13,110,253,0.15);
+}
+
+/* READONLY */
+input[readonly] {
+    background: #f1f3f6;
+    cursor: not-allowed;
+}
+
+/* TOTAL FINAL */
+#total {
+    font-weight: 600;
+    background: #eef6ff;
+}
+
+/* STATUS */
+#status {
+    font-weight: 500;
+}
+
+/* BUTTON AREA */
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* BUTTON */
+button {
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+/* SIMPAN */
+button[type="submit"] {
+    background: #0d6efd;
+    color: #fff;
+}
+
+button[type="submit"]:hover {
+    background: #0b5ed7;
+}
+
+/* BATAL */
+.btn-cancel {
+    background: #6c757d;
+    color: #fff;
+}
+
+.btn-cancel:hover {
+    background: #5c636a;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .form-row,
+    .form-row-4 {
+        grid-template-columns: 1fr;
+    }
+
+    .button-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

@@ -1,0 +1,89 @@
+/* Sidebar Styling */
+.sidebar {
+    background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
+    border-right: 1px solid #ddd;
+    min-height: 100vh;
+    padding: 1rem 0;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+/* Sidebar Navigation */
+.sidebar .nav-link {
+    color: #555;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.sidebar .nav-link.active {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 250px;
+    padding: 2rem;
+}
+
+.order-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+    padding: 2rem;
+    margin-bottom: 20px;
+}
+
+/* Placeholder style untuk dropdown */
+#filterUser option[disabled] {
+    color: gray;  /* Membuat placeholder lebih transparan */
+    font-style: italic;
+}
+
+
+/* Table Styling */
+.table th, .table td {
+    text-align: center;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.badge {
+    text-transform: capitalize;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+/* Button Styling */
+button {
+    padding: 5px 10px;
+    font-size: 0.9rem;
+}
+
+/* Responsiveness */
+@media (max-width: 991.98px) {
+    .sidebar {
+        width: 200px;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+}

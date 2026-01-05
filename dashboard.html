@@ -30,7 +30,7 @@
             <a class="nav-link active" href="dashboard.html">
                 <i class="bi bi-house-door me-2"></i> Dashboard
             </a>
-            <a class="nav-link" href="order.html">
+            <a class="nav-link" href="orders.html">
                 <i class="bi bi-cart me-2"></i> Orders
             </a>
             <a class="nav-link" href="payment.html">
@@ -42,9 +42,10 @@
             <a class="nav-link" href="setting.html">
                 <i class="bi bi-gear me-2"></i> Settings
             </a>
+            
         </nav>
         <!-- Tombol Logout di bagian bawah sidebar -->
-        <button class="btn btn-danger w-100 mt-auto" id="logoutButton">
+        <button class="btn btn-danger w-100 mt-auto" href="includes/logout.php">
             <i class="bi bi-box-arrow-right me-2"></i>Logout
         </button>
     </div>
@@ -107,14 +108,12 @@
                 <h5 class="mb-2 mb-md-0 fw-semibold">Order Status</h5>
                 <div class="d-flex gap-2">
                     <!-- Filter by Status -->
-<div class="filter">
-    <label for="statusFilter">Filter by Status:</label>
-    <select id="statusFilter" class="form-control">
-        <option value="">All</option>
-        <option value="completed">Completed</option>
-        <option value="in progress">In Progress</option>
-    </select>
-</div>
+<select id="statusFilter" class="form-control">
+  <option value="">All</option>
+  <option value="pending">Pending</option>
+  <option value="progress">In Progress</option>
+  <option value="complete">Completed</option>
+</select>
                 </div>
             </div>
             

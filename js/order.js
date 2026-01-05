@@ -1,93 +1,178 @@
-//  // Optional: Add JavaScript for interactivity (e.g., form validation or dynamic updates)
-//         document.addEventListener('DOMContentLoaded', function () {
-//             const sidebar = document.querySelector('.sidebar');
-//             const toggleBtn = document.createElement('button');
-//             toggleBtn.className = 'btn btn-primary d-lg-none position-absolute top-0 end-0 m-2';
-//             toggleBtn.innerHTML = '<i class="bi bi-list"></i>';
-//             toggleBtn.addEventListener('click', () => {
-//                 sidebar.classList.toggle('show');
-//             });
-//             document.body.appendChild(toggleBtn);
+let allOrders = [];
 
-//             // Mobile sidebar close on click outside
-//             document.addEventListener('click', (e) => {
-//                 if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target) && window.innerWidth < 992) {
-//                     sidebar.classList.remove('show');
-//                 }
-//             });
-//         });
+document.addEventListener("DOMContentLoaded", () => {
+    loadOrders();
 
-        const orderForm = document.getElementById('orderForm');
+    document.getElementById("statusFilter").addEventListener("change", applyFilters);
+    document.getElementById("searchType").addEventListener("change", resetSearch);
+    document.getElementById("searchInput").addEventListener("input", applyFilters);
+    document.getElementById("refreshOrdersBtn").addEventListener("click", refreshOrders);
+});
 
-orderForm.addEventListener('submit', function(e) {
-    e.preventDefault(); // Mencegah form melakukan submit default
+async function loadOrders() {
+    const tbody = document.getElementById("ordersTableBody");
 
-    // Ambil data dari form
-    const cashier_id = document.getElementById('customerSelect').value;
-    const customer_name = document.getElementById('customerName').value;
-    const phone_number = document.getElementById('phoneNumber').value;
-    const service_id = document.getElementById('serviceSelect').value;
-    const weight_quantity = document.getElementById('weightQuantity').value;
-    const price = document.getElementById('price').value;
-    const estimated_completion = document.getElementById('estimatedCompletion').value;
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="6" class="text-center text-muted">
+                Loading orders...
+            </td>
+        </tr>`;
 
-    // Validasi form
-    if (!cashier_id || !customer_name || !phone_number || !service_id || !weight_quantity || !price || !estimated_completion) {
-        showAlert('Please fill in all fields.', 'danger');
+    try {
+        const res = await fetch("php/orders.php");
+        const json = await res.json();
+
+        if (!json.success) {
+            tbody.innerHTML = `
+                <tr><td colspan="6">Unauthorized</td></tr>`;
+            return;
+        }
+
+        allOrders = json.data || [];
+        renderTable(allOrders);
+
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `
+            <tr><td colspan="6">Error load data</td></tr>`;
+    }
+}
+
+function renderTable(data) {
+    const tbody = document.getElementById("ordersTableBody");
+
+    if (data.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    No orders found
+                </td>
+            </tr>`;
         return;
     }
 
-    // Add loading state
-    const submitBtn = orderForm.querySelector('button[type="submit"]');
-    submitBtn.classList.add('loading');
-    submitBtn.disabled = true;
+    tbody.innerHTML = "";
 
-    // Submit form via AJAX
-    const formData = new FormData(orderForm);
+    data.forEach(o => {
+        tbody.innerHTML += `
+            <tr>
+                <td>#ORDER${o.order_id}</td>
+                <td>${o.customer ?? '-'}</td>
+                <td>${o.phone ?? '-'}</td>
+                <td>${o.services ?? '-'}</td>
+                <td>${o.total_weight} kg</td>
+                <td>
+                    <span class="badge ${
+                        o.status === 'pending' ? 'bg-warning text-dark' :
+                        o.status === 'progress' ? 'bg-info text-dark' :
+                        'bg-success'
+                    }">
+                        ${o.status}
+                    </span>
+                </td>
+                <td>${o.created_at}</td>
+                <td>Rp ${Number(o.total).toLocaleString()}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-primary me-1"
+                            onclick="editOrder(${o.order_id})"
+                            title="Edit Order">
+                        ✏️
+                    </button>
+                    <button class="btn btn-sm btn-danger"
+                            onclick="deleteOrder(${o.order_id})"
+                            title="Hapus Order">
+                        🗑️
+                    </button>
+                    ${o.status === 'pending' ? 
+                        `<button class="btn btn-sm btn-success"
+                                onclick="payOrder(${o.order_id})"
+                                title="Bayar Order">
+                            Bayar
+                        </button>` 
+                        : ''}
+                </td>
+            </tr>`;
+    });
+}
 
-    fetch('php/order.php', {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => response.text())
-        .then(data => {
-            // Jika order berhasil, tampilkan pesan tanpa mereload halaman
-            if (data.includes('Order successfully created!')) {
-                showAlert('Order berhasil dibuat!', 'success');
-                orderForm.reset();  // Reset form setelah sukses
-            } else {
-                showAlert('Terjadi kesalahan: ' + data, 'danger');
-            }
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showAlert('Terjadi kesalahan, coba lagi!', 'danger');
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-        });
-});
+function applyFilters() {
+    const status = document.getElementById("statusFilter").value;
+    const searchType = document.getElementById("searchType").value;
+    const keyword = document.getElementById("searchInput").value.toLowerCase();
 
-// Fungsi untuk menampilkan alert
-function showAlert(message, type) {
-    const existingAlert = document.querySelector('.alert-dismissible');
-    if (existingAlert) {
-        existingAlert.remove();
+    let filtered = [...allOrders];
+
+    // FILTER STATUS
+    if (status) {
+        filtered = filtered.filter(o => o.status === status);
     }
-    
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-    alertDiv.setAttribute('role', 'alert');
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    
-    orderForm.insertAdjacentElement('afterend', alertDiv);
-    
-    // Auto dismiss after 5 seconds
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 5000);
+
+    // SEARCH
+    if (keyword) {
+        filtered = filtered.filter(o => {
+            if (searchType === "customer") {
+                return (o.customer ?? '').toLowerCase().includes(keyword);
+            }
+            if (searchType === "phone") {
+                return (o.phone ?? '').toLowerCase().includes(keyword);
+            }
+            if (searchType === "date") {
+                return (o.created_at ?? '').includes(keyword);
+            }
+            return true;
+        });
+    }
+
+    renderTable(filtered);
+}
+
+function resetSearch() {
+    document.getElementById("searchInput").value = "";
+    applyFilters();
+}
+
+function refreshOrders() {
+    document.getElementById("statusFilter").value = "";
+    document.getElementById("searchType").value = "customer";
+    document.getElementById("searchInput").value = "";
+    loadOrders();
+}
+
+function editOrder(orderId) {
+    window.location.href = `edit_order.html?order_id=${orderId}`;
+}
+
+function payOrder(orderId) {
+    // Arahkan ke halaman payment dengan menyertakan order_id
+    window.location.href = `payment.html?order_id=${orderId}`;
+}
+
+
+async function deleteOrder(orderId) {
+    if (!confirm(`Yakin hapus ORDER #ORDER${orderId} ?`)) return;
+
+    try {
+        const res = await fetch("php/delete_order.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ order_id: orderId })
+        });
+
+        const json = await res.json();
+
+        if (!json.success) {
+            alert(json.message || "Gagal hapus order");
+            return;
+        }
+
+        alert("Order berhasil dihapus");
+        loadOrders(); // refresh table
+
+    } catch (err) {
+        console.error(err);
+        alert("Error delete order");
+    }
 }
