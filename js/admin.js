@@ -9,7 +9,7 @@ async function loadDashboardData(filterUser = 'all') {
     try {
         // Ambil data dari server dengan parameter filter user
         const res = await fetch("../php/admin.php?user=" + filterUser);
-        
+
         // Jika ada masalah dengan response, tampilkan error
         if (!res.ok) {
             throw new Error('Network response was not ok');
@@ -51,10 +51,10 @@ async function loadDashboardData(filterUser = 'all') {
 // Fungsi untuk mengisi dropdown filter user
 function populateUserDropdown(users) {
     const filterUser = document.getElementById('filterUser');
-    
+
     // Clear existing options
     filterUser.innerHTML = '<option value="all">Semua User</option>';
-    
+
     // Pastikan data users tidak kosong
     if (users.length > 0) {
         users.forEach(user => {
@@ -115,10 +115,36 @@ function getStatusClass(status) {
 }
 
 // Event listener untuk filter user
-document.getElementById('filterUser').addEventListener('change', function() {
+document.getElementById('filterUser').addEventListener('change', function () {
     const selectedUser = this.value;
     loadDashboardData(selectedUser); // Load data berdasarkan user yang dipilih
 });
 
+function editOrder(orderId) {
+    window.location.href = `admin_edit_order.html?order_id=${orderId}`;
+}
+
+async function deleteOrder(orderId) {
+    if (!confirm(`Yakin hapus ORDER #${orderId}?`)) return;
+
+    try {
+        const res = await fetch("../php/delete_order.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order_id: orderId })
+        });
+        const json = await res.json();
+        if (json.success) {
+            alert("Order berhasil dihapus");
+            loadDashboardData(document.getElementById('filterUser').value);
+        } else {
+            alert(json.message || "Gagal hapus order");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Error deleting order");
+    }
+}
+
 // Muat data dashboard saat halaman dimuat
-window.addEventListener('DOMContentLoaded', loadDashboardData);
+window.addEventListener('DOMContentLoaded', () => loadDashboardData());

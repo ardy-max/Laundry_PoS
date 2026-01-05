@@ -14,45 +14,45 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Load reports with date filters
     async function loadReports(filters = {}) {
-    try {
-        // Membangun query params dari filter
-        const params = new URLSearchParams();
-        if (filters.start_date) params.append("start_date", filters.start_date);
-        if (filters.end_date) params.append("end_date", filters.end_date);
-        if (filters.customer_name) params.append("customer_name", filters.customer_name);
-
-        const response = await fetch(`php/reports.php?${params.toString()}`);
-        const raw = await response.text();
-
-        let result;
         try {
-            result = JSON.parse(raw);
-        } catch (e) {
-            console.error("Error parsing JSON:", e);
-            throw new Error('Response bukan JSON');
-        }
+            // Membangun query params dari filter
+            const params = new URLSearchParams();
+            if (filters.start_date) params.append("start_date", filters.start_date);
+            if (filters.end_date) params.append("end_date", filters.end_date);
+            if (filters.customer_name) params.append("customer_name", filters.customer_name);
 
-        if (result.success) {
-            // Update summary: Total Transactions and Total Revenue
-            if (result.summary) {
-                if (totalTransactionsEl) {
-                    totalTransactionsEl.textContent = result.summary.total_transactions || 0;
-                }
-                if (totalRevenueEl) {
-                    totalRevenueEl.textContent = formatRupiah(result.summary.total_revenue || 0);
-                }
+            const response = await fetch(`php/reports.php?${params.toString()}`);
+            const raw = await response.text();
+
+            let result;
+            try {
+                result = JSON.parse(raw);
+            } catch (e) {
+                console.error("Error parsing JSON:", e);
+                throw new Error('Response bukan JSON');
             }
 
-            // Display reports with optional customer filter
-            displayReports(result.data, filters.customer_name);
-        } else {
-            tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${result.message || 'Gagal memuat data'}</td></tr>`;
+            if (result.success) {
+                // Update summary: Total Transactions and Total Revenue
+                if (result.summary) {
+                    if (totalTransactionsEl) {
+                        totalTransactionsEl.textContent = result.summary.total_transactions || 0;
+                    }
+                    if (totalRevenueEl) {
+                        totalRevenueEl.textContent = formatRupiah(result.summary.total_revenue || 0);
+                    }
+                }
+
+                // Display reports with optional customer filter
+                displayReports(result.data, filters.customer_name);
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${result.message || 'Gagal memuat data'}</td></tr>`;
+            }
+        } catch (error) {
+            console.error("Error loading reports:", error);
+            tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${error.message}</td></tr>`;
         }
-    } catch (error) {
-        console.error("Error loading reports:", error);
-        tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${error.message}</td></tr>`;
     }
-}
 
     // Display filtered reports in the table
     function displayReports(reports, customerFilter = "") {
@@ -114,13 +114,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-document.getElementById("exportBtn").addEventListener("click", function() {
-    const filename = document.getElementById("exportFilename").value.trim();
+document.getElementById("exportBtn").addEventListener("click", function () {
+    const filenameInput = document.getElementById("exportFilename");
+    const filename = filenameInput.value.trim();
+    const exportBtn = document.getElementById("exportBtn");
 
     if (filename === "") {
         alert("Nama file harus diisi!");
         return;
     }
+
+    // Set loading state
+    const originalText = exportBtn.innerHTML;
+    exportBtn.disabled = true;
+    exportBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Exporting...';
 
     // Ambil data filter yang ada
     const filters = {
@@ -137,16 +144,32 @@ document.getElementById("exportBtn").addEventListener("click", function() {
         },
         body: JSON.stringify({ filters: filters, filename: filename })
     })
-    .then(response => response.blob())
-    .then(blob => {
-        // Buat URL untuk file Excel yang diekspor
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename + ".xlsx"; // Nama file dengan ekstensi .xlsx
-        a.click();
-    })
-    .catch(error => {
-        console.error("Error exporting file:", error);
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            // Buat URL untuk file Excel yang diekspor
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename + ".xlsx"; // Nama file dengan ekstensi .xlsx
+            document.body.appendChild(a);
+            a.click();
+
+            // Clean up
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        })
+        .catch(error => {
+            console.error("Error exporting file:", error);
+            alert("Gagal mengekspor file: " + error.message);
+        })
+        .finally(() => {
+            // Reset loading state
+            exportBtn.disabled = false;
+            exportBtn.innerHTML = originalText;
+        });
 });

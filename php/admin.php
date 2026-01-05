@@ -36,12 +36,28 @@ $unfinishedOrdersResult = $conn->query($unfinishedOrdersQuery);
 $unfinishedOrders = $unfinishedOrdersResult->fetch_assoc()['unfinished_orders'];
 
 // Ambil daftar pesanan berdasarkan filter user
-$orderQuery = "SELECT * FROM orders";
+$orderQuery = "
+    SELECT 
+        o.order_id, 
+        o.status, 
+        o.created_at, 
+        o.total, 
+        c.name AS customer_name, 
+        c.phone,
+        GROUP_CONCAT(s.name SEPARATOR ', ') AS service,
+        SUM(oi.weight) AS weight
+    FROM orders o
+    LEFT JOIN customers c ON o.customer_id = c.customer_id
+    LEFT JOIN order_items oi ON o.order_id = oi.order_id
+    LEFT JOIN services s ON oi.service_id = s.service_id
+";
+
 if ($filter_user !== 'all') {
-    // Jika memilih user tertentu, filter berdasarkan user_id
-    $orderQuery .= " WHERE user_id = '$filter_user'";
+    // Jika memilih user tertentu, filter berdasarkan user_id (gunakan prepared statement idealnya, tapi di sini string concat)
+    $orderQuery .= " WHERE o.user_id = '$filter_user'";
 }
-$orderQuery .= " ORDER BY created_at DESC LIMIT 10"; // Batasi untuk 10 order terbaru
+
+$orderQuery .= " GROUP BY o.order_id ORDER BY o.created_at DESC LIMIT 10"; // Group by order_id karena join
 $orderResult = $conn->query($orderQuery);
 
 // Pastikan kita mendapatkan hasil query

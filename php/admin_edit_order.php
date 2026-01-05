@@ -61,6 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $weight = floatval($input['weight'] ?? 0);
     $service_id = $input['service_id'] ?? null;
     $adjustment = floatval($input['adjustment'] ?? 0);
+    $customer_name = $input['customer_name'] ?? '';
+    $phone = $input['phone'] ?? '';
 
     if (!$order_id) {
         echo json_encode(['success' => false, 'message' => 'Missing Order ID']);
@@ -70,6 +72,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->begin_transaction();
 
     try {
+        // 0. Update Customer Details (Admin Special Feature)
+        // First get customer_id from this order
+        $custStmt = $conn->prepare("SELECT customer_id FROM orders WHERE order_id = ?");
+        $custStmt->bind_param("i", $order_id);
+        $custStmt->execute();
+        $custRes = $custStmt->get_result();
+        
+        if ($custRow = $custRes->fetch_assoc()) {
+            $customer_id = $custRow['customer_id'];
+            
+            if (!empty($customer_name) && !empty($phone)) {
+                $updateCust = $conn->prepare("UPDATE customers SET name = ?, phone = ? WHERE customer_id = ?");
+                $updateCust->bind_param("ssi", $customer_name, $phone, $customer_id);
+                if (!$updateCust->execute()) {
+                     throw new Exception("Error updating customer: " . $updateCust->error);
+                }
+            }
+        }
+
         // 1. Fetch current price
         $priceStmt = $conn->prepare("SELECT price FROM services WHERE service_id = ?");
         $priceStmt->bind_param("i", $service_id);

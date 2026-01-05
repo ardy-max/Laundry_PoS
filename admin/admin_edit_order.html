@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Order - Admin Boss Laundry</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/edit_order.css">
+    <link rel="icon" href="../assets/admin_logo.png" sizes="36x36" type="image/png">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row min-vh-100">
+            <!-- Sidebar Admin -->
+            <div class="col-lg-3 col-md-4 col-12 sidebar">
+                <div class="text-center">
+                    <i class="fas fa-tshirt brand-icon"></i>
+                    <h3 class="brand-title">Boss Laundry</h3>
+                </div>
+                <div class="nav flex-column">
+                    <a class="nav-link" href="admin.html">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a class="nav-link" href="orders.php">
+                        <i class="fas fa-box"></i> Manajemen Order
+                    </a>
+                    <a class="nav-link" href="../admin_userManage.html">
+                        <i class="fas fa-users"></i> Manajemen User
+                    </a>
+                    <a class="nav-link" href="services.php">
+                        <i class="fas fa-cogs"></i> Manajemen Layanan
+                    </a>
+                    <a class="nav-link" href="reports.php">
+                        <i class="fas fa-file-alt"></i> Laporan
+                    </a>
+                    <a class="nav-link" href="../includes/logout.php">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 col-md-8 col-12 main-content">
+                <div class="card">
+                    <h2 class="mb-4">Edit Order (Admin)</h2>
+
+                    <!-- FORM WAJIB -->
+                    <form id="editOrderForm">
+
+                        <div class="mb-3">
+                            <label class="form-label">Nama Customer</label>
+                            <input type="text" id="customer_name" name="customer_name" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">No Telepon</label>
+                            <input type="text" id="phone" name="phone" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Service</label>
+                            <select id="service" name="service_id" class="form-select"></select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Berat (kg)</label>
+                            <input type="number" id="weight" name="weight" step="0.01" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Harga / kg</label>
+                            <input type="number" id="price" class="form-control" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Subtotal</label>
+                            <input type="number" id="subtotal" class="form-control" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Adjustment (+/-)</label>
+                            <input type="number" id="adjustment" name="adjustment" value="0" class="form-control">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Total Final</label>
+                            <input type="number" id="total" class="form-control" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select id="status" name="status" class="form-select">
+                                <option value="progress">Progress</option>
+                                <option value="complete">Complete</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                        <a href="admin.html" class="btn btn-secondary">Batal</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../js/admin_edit_order.js"></script>
+</body>
+
+</html>

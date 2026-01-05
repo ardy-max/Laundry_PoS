@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderId = params.get('order_id');
     if (!orderId) {
         alert('Order ID tidak ditemukan');
-        window.location.href = 'orders.html';
+        window.location.href = 'admin.html';
         return;
     }
 
@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const total = document.getElementById('total');
     const status = document.getElementById('status');
 
-    // LOAD SERVICES
-    fetch('php/edit_order.php?get_services=1')
+    // LOAD SERVICES (Adjusted path for admin)
+    fetch('../php/edit_order.php?get_services=1')
         .then(res => res.json())
         .then(services => {
             service.innerHTML = '';
@@ -32,14 +32,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         })
         .then(() => {
-            // LOAD ORDER DATA AFTER SERVICES LOADED (to set correct selected option)
-            return fetch(`php/edit_order.php?order_id=${orderId}`);
+            // LOAD ORDER DATA
+            return fetch(`../php/edit_order.php?order_id=${orderId}`);
         })
         .then(res => res.json())
         .then(data => {
             if (data.error) {
                 alert(data.error);
-                window.location.href = 'orders.html';
+                window.location.href = 'admin.html';
                 return;
             }
 
@@ -47,19 +47,14 @@ document.addEventListener('DOMContentLoaded', () => {
             phoneEl.value = data.phone || '';
             weight.value = data.weight || 0;
 
-            // Set service and trigger change to set price
             if (data.service_id) {
                 service.value = data.service_id;
-                // Update price manually since change event does not fire on programmatic value change
                 const selected = service.options[service.selectedIndex];
                 if (selected) price.value = selected.dataset.price;
             }
 
-            // Calculate initial totals based on loaded data
             const loadedWeight = parseFloat(data.weight) || 0;
             const loadedPrice = parseFloat(data.price) || 0;
-
-            // User requested adjustment to be empty/0 by default (fresh input)
             adjustment.value = 0;
 
             hitungSubtotal();
@@ -105,10 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const fd = new FormData(form);
         fd.append('order_id', orderId);
-        // Kirim adjustment agar backend bisa hitung ulang
         fd.append('adjustment', adjustment.value);
 
-        fetch('php/edit_order.php', {
+        fetch('../php/edit_order.php', {
             method: 'POST',
             body: fd
         })
@@ -116,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(res => {
                 if (res.success) {
                     alert('Order berhasil diperbarui');
-                    location.href = 'orders.html';
+                    location.href = 'admin.html';
                 } else {
                     alert('Gagal update order: ' + (res.message || 'Unknown error'));
                 }

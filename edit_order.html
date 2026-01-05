@@ -1,76 +1,77 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Edit Order</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="css/edit_order.css">
+    <link rel="stylesheet" href="css/edit_order.css">
 
-   
+
 </head>
+
 <body>
 
-<div class="card">
-    <h2>Edit Order</h2>
+    <div class="card">
+        <h2>Edit Order</h2>
 
-    <!-- FORM WAJIB -->
-    <form id="editOrderForm">
+        <!-- FORM WAJIB -->
+        <form id="editOrderForm">
 
-        <div>
-            <label>Nama Customer</label>
-            <input type="text" id="customer_name" name="customer_name">
-        </div>
+            <div>
+                <label>Nama Customer</label>
+                <input type="text" id="customer_name" name="customer_name">
+            </div>
 
-        <div>
-            <label>No Telepon</label>
-            <input type="text" id="phone" name="phone">
-        </div>
+            <div>
+                <label>No Telepon</label>
+                <input type="text" id="phone" name="phone">
+            </div>
 
-        <div>
-            <label>Service</label>
-            <select id="service" name="service_id"></select>
-        </div>
+            <div>
+                <label>Service</label>
+                <select id="service" name="service_id"></select>
+            </div>
 
-        <div>
-            <label>Berat (kg)</label>
-            <input type="number" id="weight" name="weight" step="0.01">
-        </div>
+            <div>
+                <label>Berat (kg)</label>
+                <input type="number" id="weight" name="weight" step="0.01">
+            </div>
 
-        <div>
-            <label>Harga / kg</label>
-            <input type="number" id="price" readonly>
-        </div>
+            <div>
+                <label>Harga / kg</label>
+                <input type="number" id="price" readonly>
+            </div>
 
-        <div>
-            <label>Subtotal</label>
-            <input type="number" id="subtotal" readonly>
-        </div>
+            <div>
+                <label>Subtotal</label>
+                <input type="number" id="subtotal" readonly>
+            </div>
 
-        <div>
-            <label>Adjustment (+/-)</label>
-            <input type="number" id="adjustment" value="0">
-        </div>
+            <div>
+                <label>Adjustment (+/-)</label>
+                <input type="number" id="adjustment" value="0">
+            </div>
 
-        <div>
-            <label>Total Final</label>
-            <input type="number" id="total" readonly>
-        </div>
+            <div>
+                <label>Total Final</label>
+                <input type="number" id="total" readonly>
+            </div>
 
-        <div>
-            <label>Status</label>
-            <select id="status" name="status">
-                <option value="pending">Pending</option>
-                <option value="progress">Progress</option>
-                <option value="complete">Complete</option>
-            </select>
-        </div>
+            <div>
+                <label>Status</label>
+                <select id="status" name="status">
+                    <option value="progress">Progress</option>
+                    <option value="complete">Complete</option>
+                </select>
+            </div>
 
-        <button type="submit">Simpan</button>
-    </form>
-</div>
+            <button type="submit">Simpan</button>
+        </form>
+    </div>
 
-<!-- JS -->
-<script src="js/edit_order.js"></script>
+    <!-- JS -->
+    <script src="js/edit_order.js"></script>
 </body>
-</html>
 
+</html>
