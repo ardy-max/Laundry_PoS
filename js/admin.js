@@ -1,5 +1,5 @@
-// Fungsi untuk memuat data statistik dan pesanan
-async function loadDashboardData(filterUser = 'all') {
+// Fungsi untuk memuat data statistik
+async function loadDashboardData() {
     // Tampilkan loading state
     document.getElementById('totalOrder').innerText = 'Loading...';
     document.getElementById('todayOrder').innerText = 'Loading...';
@@ -7,10 +7,9 @@ async function loadDashboardData(filterUser = 'all') {
     document.getElementById('unfinishedOrder').innerText = 'Loading...';
 
     try {
-        // Ambil data dari server dengan parameter filter user
-        const res = await fetch("../php/admin.php?user=" + filterUser);
+        // Ambil data dari server (fetch all)
+        const res = await fetch("../php/admin.php?user=all");
 
-        // Jika ada masalah dengan response, tampilkan error
         if (!res.ok) {
             throw new Error('Network response was not ok');
         }
@@ -18,133 +17,140 @@ async function loadDashboardData(filterUser = 'all') {
         const json = await res.json();
 
         if (json.success) {
-            // Update statistik berdasarkan response
-            document.getElementById('totalOrder').innerText = json.data.totalOrders;
-            document.getElementById('todayOrder').innerText = json.data.ordersToday;
-            document.getElementById('totalIncome').innerText = json.data.totalIncome;
-            document.getElementById('unfinishedOrder').innerText = json.data.unfinishedOrders;
+            // Update statistik
+            document.getElementById('totalOrder').innerText = json.data.totalOrders || 0;
+            document.getElementById('todayOrder').innerText = json.data.ordersToday || 0;
+            // Format currency
+            const income = parseInt(json.data.totalIncome || 0).toLocaleString();
+            document.getElementById('totalIncome').innerText = 'Rp ' + income;
+            document.getElementById('unfinishedOrder').innerText = json.data.unfinishedOrders || 0;
 
-            // Render tabel pesanan
-            renderTable(json.data.orders);
+            // Render Chart
+            if (json.data.chartData) {
+                renderChart(json.data.chartData);
+            }
 
-            // Mengisi dropdown filter user
-            populateUserDropdown(json.data.users);
-
-            // Set dropdown ke nilai yang dipilih
-            setSelectedUser(filterUser);
         } else {
             console.error("Failed to load data: ", json.message);
-            document.getElementById('totalOrder').innerText = 'Failed to load data';
-            document.getElementById('todayOrder').innerText = 'Failed to load data';
-            document.getElementById('totalIncome').innerText = 'Failed to load data';
-            document.getElementById('unfinishedOrder').innerText = 'Failed to load data';
+            setErrorStats();
         }
     } catch (err) {
         console.error('Fetch error: ', err);
-        document.getElementById('totalOrder').innerText = 'Error loading data';
-        document.getElementById('todayOrder').innerText = 'Error loading data';
-        document.getElementById('totalIncome').innerText = 'Error loading data';
-        document.getElementById('unfinishedOrder').innerText = 'Error loading data';
+        setErrorStats();
     }
 }
 
-// Fungsi untuk mengisi dropdown filter user
-function populateUserDropdown(users) {
-    const filterUser = document.getElementById('filterUser');
+let salesChartInstance = null;
 
-    // Clear existing options
-    filterUser.innerHTML = '<option value="all">Semua User</option>';
+function renderChart(data) {
+    const ctx = document.getElementById('salesChart').getContext('2d');
 
-    // Pastikan data users tidak kosong
-    if (users.length > 0) {
-        users.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.id;
-            option.textContent = user.username;
-            filterUser.appendChild(option);
-        });
-    } else {
-        // Jika tidak ada user, tampilkan pilihan kosong atau info
-        filterUser.innerHTML = '<option value="all">No Users Available</option>';
+    // Map data to arrays
+    const labels = data.map(item => {
+        // Format date dd/mm
+        const d = new Date(item.date);
+        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+    });
+    const incomes = data.map(item => item.income);
+    const counts = data.map(item => item.count);
+
+    if (salesChartInstance) {
+        salesChartInstance.destroy();
     }
-}
 
-// Fungsi untuk memastikan nilai dropdown terpilih sesuai dengan filter user
-function setSelectedUser(filterUser) {
-    const filterUserElement = document.getElementById('filterUser');
-    filterUserElement.value = filterUser;  // Set the selected value to the chosen filter
-}
-
-// Fungsi untuk merender tabel pesanan
-function renderTable(orders) {
-    const tbody = document.getElementById("ordersTableBody");
-    tbody.innerHTML = ''; // Clear existing rows
-
-    if (orders.length === 0) {
-        const row = document.createElement("tr");
-        row.innerHTML = "<td colspan='9' class='text-center'>No orders available</td>";
-        tbody.appendChild(row);
-    } else {
-        orders.forEach(order => {
-            const row = document.createElement("tr");
-
-            row.innerHTML = `
-                <td>${order.order_id}</td>
-                <td>${order.customer_name}</td>
-                <td>${order.phone}</td>
-                <td>${order.service}</td>
-                <td>${order.weight}</td>
-                <td><span class="badge bg-${getStatusClass(order.status)}">${order.status}</span></td>
-                <td>${order.created_at}</td>
-                <td>${order.total}</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" onclick="editOrder(${order.order_id})">✏️</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteOrder(${order.order_id})">🗑️</button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
-}
-
-// Fungsi untuk mendapatkan kelas badge berdasarkan status
-function getStatusClass(status) {
-    if (status === 'pending') return 'warning';
-    if (status === 'progress') return 'primary';
-    return 'success'; // complete
-}
-
-// Event listener untuk filter user
-document.getElementById('filterUser').addEventListener('change', function () {
-    const selectedUser = this.value;
-    loadDashboardData(selectedUser); // Load data berdasarkan user yang dipilih
-});
-
-function editOrder(orderId) {
-    window.location.href = `admin_edit_order.html?order_id=${orderId}`;
-}
-
-async function deleteOrder(orderId) {
-    if (!confirm(`Yakin hapus ORDER #${orderId}?`)) return;
-
-    try {
-        const res = await fetch("../php/delete_order.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ order_id: orderId })
-        });
-        const json = await res.json();
-        if (json.success) {
-            alert("Order berhasil dihapus");
-            loadDashboardData(document.getElementById('filterUser').value);
-        } else {
-            alert(json.message || "Gagal hapus order");
+    salesChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Pendapatan (Rp)',
+                    data: incomes,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Jumlah Order',
+                    data: counts,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    tension: 0.4,
+                    fill: false,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: { display: true, text: 'Pendapatan (Rp)' },
+                    ticks: {
+                        callback: function (value) {
+                            return 'Rp ' + value.toLocaleString();
+                        }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: 'Jumlah Order' },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                if (context.datasetIndex === 0) {
+                                    label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(context.parsed.y);
+                                } else {
+                                    label += context.parsed.y;
+                                }
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
         }
-    } catch (err) {
-        console.error(err);
-        alert("Error deleting order");
-    }
+    });
+}
+
+function setErrorStats() {
+    document.getElementById('totalOrder').innerText = 'Error';
+    document.getElementById('todayOrder').innerText = 'Error';
+    document.getElementById('totalIncome').innerText = 'Error';
+    document.getElementById('unfinishedOrder').innerText = 'Error';
 }
 
 // Muat data dashboard saat halaman dimuat
-window.addEventListener('DOMContentLoaded', () => loadDashboardData());
+window.addEventListener('DOMContentLoaded', loadDashboardData);

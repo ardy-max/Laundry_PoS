@@ -60,6 +60,25 @@ if ($filter_user !== 'all') {
 $orderQuery .= " GROUP BY o.order_id ORDER BY o.created_at DESC LIMIT 10"; // Group by order_id karena join
 $orderResult = $conn->query($orderQuery);
 
+// Ambil data penjualan 7 hari terakhir untuk grafik
+$chartQuery = "
+    SELECT 
+        DATE(created_at) as date, 
+        COUNT(*) as count, 
+        SUM(total) as income 
+    FROM orders 
+    WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) 
+    GROUP BY DATE(created_at) 
+    ORDER BY date ASC
+";
+$chartResult = $conn->query($chartQuery);
+$chartData = [];
+if ($chartResult) {
+    while ($row = $chartResult->fetch_assoc()) {
+        $chartData[] = $row;
+    }
+}
+
 // Pastikan kita mendapatkan hasil query
 if ($orderResult->num_rows > 0) {
     $orders = $orderResult->fetch_all(MYSQLI_ASSOC);
@@ -75,10 +94,11 @@ echo json_encode([
         'totalIncome' => $totalIncome,
         'unfinishedOrders' => $unfinishedOrders,
         'orders' => $orders,
-        'users' => $users // Menambahkan data user
+        'users' => $users,
+        'chartData' => $chartData // Data untuk grafik
     ]
 ]);
 
 $conn->close();
-
+exit; // End script here cleanly to avoid whitespace issues
 ?>
