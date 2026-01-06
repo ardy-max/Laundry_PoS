@@ -36,19 +36,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['email']) && !isset($_P
                 $mail->isSMTP();
                 $mail->Host = 'smtp.gmail.com';  // Ganti dengan server SMTP yang sesuai (misalnya Gmail)
                 $mail->SMTPAuth = true;
-                $mail->Username = 'your_email@gmail.com';  // Ganti dengan email pengirim
-                $mail->Password = 'your_email_password';  // Ganti dengan password email pengirim (gunakan App Password jika 2FA aktif)
+                $mail->Username = 'laundrypos.noreply@gmail.com';  // Email pengirim
+                $mail->Password = 'flnp naxj phxh qeea';  // App Password
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;  // Port untuk TLS
 
                 // Recipients
-                $mail->setFrom('your_email@gmail.com', 'Your Name');  // Ganti dengan email pengirim
+                $mail->setFrom('laundrypos.noreply@gmail.com', 'Laundry PoS Admin');  // Email pengirim
                 $mail->addAddress($email);  // Email penerima
 
                 // Content
                 $mail->isHTML(true);
                 $mail->Subject = 'Kode Verifikasi Lupa Password';
-                $mail->Body    = "Kode OTP Anda adalah: $otp<br><br>Link untuk reset password: <a href='http://localhost/Laundry_Pos/forgot_password.php?email=$email&otp=$otp'>Reset Password</a>";
+                $mail->Body    = "
+                    <div style='font-family: Arial, sans-serif; text-align: center;'>
+                        <h2>Kode Verifikasi Anda</h2>
+                        <p>Gunakan kode berikut untuk mereset password Anda:</p>
+                        <h1 style='background-color: #f0f0f0; padding: 10px; display: inline-block; letter-spacing: 5px;'>$otp</h1>
+                        <p>Kode ini hanya berlaku untuk sesi ini.</p>
+                    </div>
+                ";
 
                 $mail->send();
                 echo "OTP telah dikirim ke email Anda.";
@@ -60,6 +67,45 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['email']) && !isset($_P
         }
     } else {
         echo "Email tidak valid.";
+    }
+}
+
+// Proses Verifikasi OTP
+elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['otp'])) {
+    $user_otp = $_POST['otp'];
+    
+    if (isset($_SESSION['otp']) && $user_otp == $_SESSION['otp']) {
+        echo "OTP berhasil diverifikasi!";
+        // Opsional: Set flag verifikasi jika diperlukan untuk langkah selanjutnya
+        $_SESSION['otp_verified'] = true; 
+    } else {
+        echo "OTP salah atau kadaluarsa.";
+    }
+}
+
+// Proses Reset Password
+elseif ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['newPassword'])) {
+    if (isset($_SESSION['otp_verified']) && $_SESSION['otp_verified'] === true && isset($_SESSION['email'])) {
+        $new_password = $_POST['newPassword'];
+        $email = $_SESSION['email'];
+        
+        // Hash password baru
+        $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+        
+        // Update password di database
+        $updateQuery = "UPDATE users SET password = ? WHERE email = ?";
+        $stmt = $conn->prepare($updateQuery);
+        $stmt->bind_param("ss", $hashed_password, $email);
+        
+        if ($stmt->execute()) {
+            echo "Password berhasil diubah. Silakan login.";
+            // Hapus session setelah berhasil
+            session_destroy();
+        } else {
+            echo "Gagal mengubah password: " . $conn->error;
+        }
+    } else {
+        echo "Akses ditolak. Silakan verifikasi OTP terlebih dahulu.";
     }
 }
 ?>
